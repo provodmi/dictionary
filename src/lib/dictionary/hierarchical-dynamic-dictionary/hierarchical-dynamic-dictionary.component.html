@@ -1,0 +1,76 @@
+<mat-card>
+  <mat-card-title>{{(dictMeta.dictionaryName) ? dictMeta.dictionaryName : ''}}</mat-card-title>
+  <mat-form-field class="search-ff">
+    <input matInput [formControl]="searchInput" placeholder="Поиск" id="sinput">
+    <button mat-button matSuffix mat-icon-button aria-label="Clear" (click)="searchInput.reset('')"
+            matTooltip="Очистить поле">
+      <mat-icon>close</mat-icon>
+    </button>
+    <mat-error *ngIf="searchInput.hasError('notFound')">По текущему запросу записей не найдено</mat-error>
+    <mat-error *ngIf="searchInput.hasError('tooBigResult')">Результат поиска слишком большой, пожалуйста, уточните Ваш
+      запрос
+    </mat-error>
+  </mat-form-field>
+  <mat-chip-list class="selected-entries-container">
+    <mat-chip class="selected-entry" *ngFor="let node of checklistSelection.selected; trackBy:identify"
+              [selected]="data.ids.indexOf(node.id) !== -1" disableRipple [color]="'warn'"
+              (click)="showNodeInTree(node)">
+           <span [matTooltip]="node.name" matTooltipShowDelay="300">
+             {{node.name}}
+           </span>
+      <mat-icon matChipRemove (click)="remove(node)">cancel</mat-icon>
+    </mat-chip>
+  </mat-chip-list>
+  <mat-card-content>
+    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="tree">
+      <mat-tree-node class="node" *matTreeNodeDef="let node" matTreeNodeToggle>
+        <li class="mat-tree-node">
+          <button mat-icon-button disabled></button>
+          <mat-checkbox class="checklist-leaf-node"
+                        [checked]="isNodeSelected(node)"
+                        (change)="todoLeafItemSelectionToggle(node)">
+            <div [id]=node.id [style.white-space]="'pre-line'">
+              <span *ngFor="let l of node.name.split('')">{{l}}</span>
+            </div>
+          </mat-checkbox>
+        </li>
+      </mat-tree-node>
+      <mat-nested-tree-node class="node" *matTreeNodeDef="let node; when: hasChild">
+        <li>
+          <div class="mat-tree-node">
+            <button mat-icon-button matTreeNodeToggle
+                    [attr.aria-label]="'toggle ' + node.name">
+              <mat-icon class="mat-icon-rtl-mirror">
+                {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+              </mat-icon>
+            </button>
+            <!--            [indeterminate]="this.dictMeta.multiSelection ? descendantsPartiallySelected(node) : false"-->
+            <!--            (change)="this.dictMeta.multiSelection ? todoItemSelectionToggle(node) : todoLeafItemSelectionToggle(node)"-->
+            <!--            [checked]="this.dictMeta.multiSelection ? descendantsAllSelected(node) : checklistSelection.isSelected(node)"-->
+            <mat-checkbox [checked]="isNodeSelected(node)"
+                          (change)="todoLeafItemSelectionToggle(node)">
+              <div [id]=node.id [style.white-space]="'pre-line'">
+                <span *ngFor="let l of node.name.split('')">{{l}}</span>
+              </div>
+            </mat-checkbox>
+            <mat-progress-bar *ngIf="node.isLoading"
+                              mode="indeterminate"
+                              class="example-tree-progress-bar"></mat-progress-bar>
+          </div>
+          <ul *ngIf="treeControl.isExpanded(node)" [class.tree-invisible]="!treeControl.isExpanded(node)">
+            <ng-container matTreeNodeOutlet></ng-container>
+          </ul>
+        </li>
+      </mat-nested-tree-node>
+    </mat-tree>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button color="primary" [disabled]="checklistSelection.selected.length == 0"
+            (click)="select()">Выбрать
+    </button>
+  </mat-card-actions>
+</mat-card>
+
+<!--<mat-card class="loading-shade" *ngIf="isLoading">-->
+<!--</mat-card>-->
+

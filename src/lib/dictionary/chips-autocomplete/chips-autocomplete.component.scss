@@ -1,0 +1,30 @@
+.chip-list {
+  width: 100%;
+}
+
+.selected-entries-container {
+  width: 100%;
+}
+
+.selected-entry {
+  flex: 1 0 200px;
+  max-width: fit-content;
+  display: flex;
+  flex-direction: row;
+
+  white-space: nowrap;
+  span {
+    text-overflow: ellipsis;
+    width: fit-content;
+    overflow: hidden;
+  }
+}
+
+.chip-input {
+  flex: 1 0 300px;
+}
+
+// этот стиль для FireFox, чтобы btn внутри отображался корректно
+.normal-align ::ng-deep .mat-form-field-flex {
+  align-items: center;
+}

@@ -1,0 +1,105 @@
+
+mat-card {
+  height: calc(80vh - 125px);
+  display: flex;
+  flex-direction: column;
+}
+
+mat-card-title {
+  font-size: large;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-card-content {
+  visibility: hidden;
+  animation-name: showBlock;
+  animation-duration: 0.4s;
+  animation-delay: 0.4s;
+  animation-fill-mode: forwards;
+
+  margin: 0;
+  overflow: auto;
+  flex: 1;
+}
+
+mat-card-actions {
+  width: 100%;
+  padding-left: 10px;
+}
+
+table {
+  width: 100%;
+  padding-left: 10px;
+}
+
+:host.mat-chip-list .mat-chip-list-wrapper {
+  justify-content: space-around;
+  width: 100%;
+}
+
+mat-chip-list {
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-height: 72px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 4px;
+  margin-bottom: 10px;
+
+  mat-chip {
+    animation-name: show;
+    animation-duration: 1s;
+    white-space: nowrap;
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+@keyframes show {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes showBlock {
+  from {
+    visibility: visible;
+    opacity: 0;
+  }
+
+  to {
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
+/* Column Widths */
+.mat-column-select,
+.mat-column-id {
+  //padding-right: 10px;
+  //position: relative;
+  width: 40px;
+}
+
+.mat-column {
+  text-align: center;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.mat-column-name {
+  border-left: 1px solid #e0e0e0;
+  max-width: 800px;
+  padding-left: 10px;
+
+}

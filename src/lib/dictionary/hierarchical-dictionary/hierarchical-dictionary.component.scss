@@ -1,0 +1,56 @@
+mat-card {
+  display: flex;
+  flex-direction: column;
+  height: calc(80vh - 116px);
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-card-title {
+  font-size: medium;
+  text-align: center;
+}
+
+mat-card-content {
+  flex: 1;
+  overflow: auto;
+  margin-bottom: 5px;
+}
+
+mat-tree-node {
+  margin-bottom: 3px;
+}
+
+::ng-deep .mat-chip-list-wrapper {
+  justify-content: center;
+}
+
+.parentNode {
+  cursor: pointer;
+}
+
+.search-ff {
+  margin-bottom: .5rem;
+}
+
+.selected-entries-container {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.selected-entry {
+  flex: 1 0 200px;
+  max-width: fit-content;
+  display: flex;
+  flex-direction: row;
+
+  white-space: nowrap;
+  span {
+    text-overflow: ellipsis;
+    width: fit-content;
+    overflow: hidden;
+  }
+}
+

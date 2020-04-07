@@ -1,0 +1,13 @@
+{
+  "name": "@digtech/dictionary",
+  "version": "0.0.4",
+  "peerDependencies": {
+    "@angular/common": "~8.2.14",
+    "@angular/core": "~8.2.14"
+  },
+  "scripts": {
+    "lib:build": "ng build dictionary",
+    "lib:watch": "ng build dictionary-lib --watch",
+    "lib:publish": "npm run lib:build && cd dist/dictionary-lib && npm pack npm publish"
+  }
+}

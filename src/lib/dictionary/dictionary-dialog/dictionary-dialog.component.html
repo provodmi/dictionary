@@ -1,0 +1,34 @@
+<div class="loading-shade"
+     *ngIf="isLoading">
+  <mat-progress-spinner *ngIf="false" mode="indeterminate"></mat-progress-spinner>
+</div>
+
+<br>
+<!--<div *ngIf="dictMetaSchema">-->
+<div class="center" *ngIf="unableLoad">
+  Данные временно недоступны. Попробуйте позже.
+</div>
+<div *ngIf="!isLoading">
+
+  <app-linear-dictionary *ngIf="!isDictionaryHierarchical"
+                         [data]="data"
+                         [dictMeta]="dictMeta"
+                         (selected)="select($event)"
+  ></app-linear-dictionary>
+
+  <app-hierarchical-dynamic-dictionary *ngIf="isDictionaryHierarchical && dictMeta.dictionarySize >= 500 &&
+                                        !data.dictMeta.parameters.length"
+                                       [data]="data"
+                                       [dictMeta]="dictMeta"
+                                       (selected)="select($event)"
+  ></app-hierarchical-dynamic-dictionary>
+
+  <app-hierarchical-dictionary *ngIf="isDictionaryHierarchical && (dictMeta.dictionarySize < 500 ||
+                                data.dictMeta.parameters.length)"
+                               [data]="data"
+                               [dictMeta]="dictMeta"
+                               (selected)="select($event)"
+  ></app-hierarchical-dictionary>
+
+  <br>
+</div>

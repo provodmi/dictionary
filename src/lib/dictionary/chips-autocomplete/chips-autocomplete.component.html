@@ -1,0 +1,39 @@
+<mat-form-field class="chip-list normal-align" appearance="outline">
+  <mat-label>{{label}}</mat-label>
+  <mat-chip-list class="selected-entries-container" #chipList
+                 (click)="onTouched()">
+    <mat-chip class="selected-entry"
+              *ngFor="let rd of records; trackBy:identify"
+              disableRipple
+              [matTooltip]="rd.name ? rd.name : ''"
+              [matTooltipShowDelay]="500"
+              [removable]="removable"
+              (removed)="remove(rd)">
+      <span>{{rd.name}}</span>
+      <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+    </mat-chip>
+    <input
+      class="chip-input"
+      [placeholder]="placeholder"
+      #dicInput
+      [formControl]="dictInputControl"
+      [matAutocomplete]="auto"
+      [matChipInputFor]="chipList"
+      (focusin)="dicInput.setAttribute('placeholder', placeholder)"
+      (focusout)="dicInput.setAttribute('placeholder', '...')">
+  </mat-chip-list>
+  <button class="input-button" *ngIf="dictInputControl.enabled" type="button" mat-button matSuffix mat-icon-button
+          (click)="openDictDialog(); $event.stopPropagation();">
+    <mat-icon>fullscreen</mat-icon>
+  </button>
+  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+    <mat-option *ngIf="searchingRequest" disabled>Показаны результаты по запросу: "{{searchingRequest}}"</mat-option>
+    <mat-option *ngFor="let rd of dicRecords | async" [value]="rd">
+      {{rd.name}}
+    </mat-option>
+  </mat-autocomplete>
+  <mat-hint [style.color]="'red'" *ngIf="dictInputControl.hasError('notFound')">
+    По текущему запросу записей не найдено
+  </mat-hint>
+</mat-form-field>
+

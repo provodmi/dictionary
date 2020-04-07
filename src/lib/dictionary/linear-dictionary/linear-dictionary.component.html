@@ -1,0 +1,55 @@
+<mat-card>
+  <mat-card-title>{{dictionaryName}}</mat-card-title>
+  <mat-form-field>
+    <!--    <input matInput [formControl]="searchInput" (keyup)="search($event.target.value)" placeholder="Поиск">-->
+    <input matInput [formControl]="searchInput" placeholder="Поиск">
+    <button mat-button matSuffix mat-icon-button (click)="searchInput.reset('')" matTooltip="Очистить поле">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+  <mat-chip-list class="wrapper"
+                 [style.display]="(selection.selected.length === 0) ? 'none' : 'flex'">
+    <mat-chip *ngFor="let node of selection.selected" [selected]="data.ids.indexOf(node.id) !== -1"
+              disableRipple [color]="'warn'" [matTooltipShowDelay]="500" [matTooltip]="node.name">
+      <span>{{node.name}}</span>
+      <mat-icon matChipRemove (click)="remove(node)">cancel</mat-icon>
+    </mat-chip>
+  </mat-chip-list>
+  <mat-card-content>
+    <table mat-table [dataSource]="dictionary | async" matSort class="mat-elevation-z8">
+      <!-- Checkbox Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <!-- show in multiselection mode -->
+          <!-- <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="selection.hasValue() && isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()">
+          </mat-checkbox> -->
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selectNode(row) : null"
+                        [checked]="findNodeIndex(row) !== -1">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+      <!-- Columns -->
+      <ng-container [matColumnDef]="column.name" [sticky]="column.name === 'name'" *ngFor="let column of columns">
+
+        <th mat-header-cell *matHeaderCellDef mat-sort-header disableClear>
+          <mat-label>{{(column.colName) ? column.colName : column.name}}</mat-label>
+        </th>
+        <!--            <td mat-cell *matCellDef="let element"> {{element[column.name] | dictType: dictMetaSchema[column.name].type}}-->
+        <td mat-cell *matCellDef="let element"> {{element[column.name]}}
+        </td>
+        <!-- <mat-cell *matCellDef="let element"> {{element[column.name]}} </mat-cell> -->
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="selectNode(row)"></tr>
+    </table>
+    <!--        <mat-paginator [length]="dictMeta.dictionarySize" [pageSizeOptions]="[10, 20, 50, 100]" showFirstLastButtons></mat-paginator>-->
+    <mat-paginator [pageSizeOptions]="[10, 20, 50, 100]" showFirstLastButtons [length]="dictionarySize"></mat-paginator>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button color="primary" [disabled]="selection.selected.length === 0"
+            (click)="selectEntries()">Выбрать
+    </button>
+  </mat-card-actions>
+</mat-card>

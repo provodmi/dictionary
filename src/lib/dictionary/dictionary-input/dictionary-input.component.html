@@ -1,0 +1,31 @@
+<div *ngIf="!isLoading">
+  <mat-form-field class="normal-align" #autocomplete [style.width]="'100%'" appearance="outline"
+                  *ngIf="!dictMeta.multiSelection">
+    <mat-label>{{label}}</mat-label>
+    <input #inputElement type="text" [placeholder]="placeholder" matInput [formControl]="dictInputControl"
+           [matAutocomplete]="record" (click)="onTouched()">
+    <button *ngIf="dictInputControl.enabled" type="button" mat-button matSuffix mat-icon-button
+            (click)="openDictDialog(); $event.stopPropagation();">
+      <mat-icon>fullscreen</mat-icon>
+    </button>
+    <mat-autocomplete #record="matAutocomplete" [displayWith]="dictService.displayFn">
+      <mat-option *ngFor="let rd of dicRecords | async" [value]="rd">
+        {{ rd.name }}
+      </mat-option>
+    </mat-autocomplete>
+    <mat-hint [style.color]="'red'" *ngIf="dictInputControl.hasError('notFound')">
+      По текущему запросу записей не найдено
+    </mat-hint>
+  </mat-form-field>
+
+  <app-chips-autocomplete *ngIf="dictMeta.multiSelection"
+                          [style.width]="'100%'"
+                          [placeholder]="placeholder"
+                          [label]="label"
+                          [data]="data"
+                          [params]="paramsForRequest"
+                          [dictMeta]="dictMeta"
+                          [formControl]="dictInputControl">
+  </app-chips-autocomplete>
+</div>
+
