@@ -1,7 +1,7 @@
 import {FormControl, ValidationErrors, ValidatorFn} from '@angular/forms';
 
 export const isObjectWithId: ValidatorFn = (control: FormControl): ValidationErrors | null => {
-  return control.value && typeof +control.value.id === 'number' || !control.value ? null : {isNotObject: true};
+  return control.value && control.value.id && typeof +control.value.id === 'number' || !control.value ? null : {isNotObject: true};
 };
 
 export const isArrayFromObjectsWithId: ValidatorFn = (control: FormControl): ValidationErrors | null => {

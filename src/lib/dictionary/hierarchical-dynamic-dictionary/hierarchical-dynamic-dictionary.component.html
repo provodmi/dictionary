@@ -30,7 +30,7 @@
                         [checked]="isNodeSelected(node)"
                         (change)="todoLeafItemSelectionToggle(node)">
             <div [id]=node.id [style.white-space]="'pre-line'">
-              <span *ngFor="let l of node.name.split('')">{{l}}</span>
+              <span *ngFor="let l of (node.externalName ? node.externalName : node.name).split('')">{{l}}</span>
             </div>
           </mat-checkbox>
         </li>
@@ -44,13 +44,17 @@
                 {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
               </mat-icon>
             </button>
-            <!--            [indeterminate]="this.dictMeta.multiSelection ? descendantsPartiallySelected(node) : false"-->
-            <!--            (change)="this.dictMeta.multiSelection ? todoItemSelectionToggle(node) : todoLeafItemSelectionToggle(node)"-->
-            <!--            [checked]="this.dictMeta.multiSelection ? descendantsAllSelected(node) : checklistSelection.isSelected(node)"-->
-            <mat-checkbox [checked]="isNodeSelected(node)"
-                          (change)="todoLeafItemSelectionToggle(node)">
-              <div [id]=node.id [style.white-space]="'pre-line'">
-                <span *ngFor="let l of node.name.split('')">{{l}}</span>
+            <span *ngIf="!dictMeta.parentNodeIsSelectable"
+                  class="parentNode" matTreeNodeToggle [id]="node.id">
+              <strong>{{node.externalName ? node.externalName : node.name}}</strong>
+            </span>
+            <mat-checkbox *ngIf="dictMeta.parentNodeIsSelectable"
+                          [checked]="isNodeSelected(node)"
+                          (change)="todoLeafItemSelectionToggle(node)"
+                          [matTooltipShowDelay]="500"
+                          matTooltip={{node.name}}>
+              <div [id]="node.id" [style.white-space]="'pre-line'">
+                <span *ngFor="let l of (node.externalName ? node.externalName : node.name).split('')">{{l}}</span>
               </div>
             </mat-checkbox>
             <mat-progress-bar *ngIf="node.isLoading"

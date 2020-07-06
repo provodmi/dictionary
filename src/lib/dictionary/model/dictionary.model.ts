@@ -3,6 +3,7 @@ import {InjectionToken} from "@angular/core";
 export class DictNode {
   id: number;
   name: string;
+  externalName: string;
   [key: string]: any;
   oid: string;
   parentId?: number;

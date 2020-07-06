@@ -87,7 +87,9 @@ export class DictionaryService {
   }
 
   getByNameHierarchicalDic(oid: string, name: string): Observable<DictNode[]> {
-    return this.http.post<DictNode[]>(`${this.config.dictURL}/dictionary/like/${oid}/`, name);
+    return this.http.post<DictNode[]>(`${this.config.dictURL}/dictionary/like/${oid}/`, name).pipe(
+      catchError(() => of([]))
+    );
   }
 
   displayFn(dictVal): string | undefined {

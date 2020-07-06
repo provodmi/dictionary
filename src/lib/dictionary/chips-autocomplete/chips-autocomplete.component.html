@@ -27,10 +27,39 @@
     <mat-icon>fullscreen</mat-icon>
   </button>
   <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-    <mat-option *ngIf="searchingRequest" disabled>Показаны результаты по запросу: "{{searchingRequest}}"</mat-option>
-    <mat-option *ngFor="let rd of dicRecords | async" [value]="rd">
-      {{rd.name}}
+    <mat-option *ngIf="searchingRequest" disabled [style.text-align]="'center'">
+      Показаны результаты по запросу: "{{searchingRequest}}"
     </mat-option>
+
+    <ng-container *ngIf="!outputResultsWithHierarchy; else withHierarchy">
+      <mat-option *ngFor="let rd of dicRecords | async" [value]="rd">
+        {{rd.name}}
+      </mat-option>
+    </ng-container>
+
+    <ng-template #withHierarchy ngFor [ngForOf]="dicRecords | async" let-record>
+      <ng-container
+        *ngTemplateOutlet="record.expandable ? parent : child;  context: { $implicit: {record: record, padding: 0}}"></ng-container>
+      <ng-template #parent let-data>
+        <mat-optgroup>
+          <span [style.padding-left]="data.padding + 'px'">
+            {{data.record.externalName ? data.record.externalName : data.record.name}}
+          </span>
+          <ng-container *ngFor="let rec of data.record.children">
+            <ng-container
+              *ngTemplateOutlet="rec.expandable ? parent : child;  context: { $implicit: {record: rec, padding: data.padding + 50} }"></ng-container>
+          </ng-container>
+        </mat-optgroup>
+      </ng-template>
+      <ng-template #child let-data>
+        <ng-container *ngIf="data.record">
+          <mat-option [value]="data.record" [style.padding-left]="data.padding + 20 + 'px'">
+            {{data.record.externalName ? data.record.externalName : data.record.name}}
+          </mat-option>
+        </ng-container>
+      </ng-template>
+    </ng-template>
+
   </mat-autocomplete>
   <mat-hint [style.color]="'red'" *ngIf="dictInputControl.hasError('notFound')">
     По текущему запросу записей не найдено

@@ -13,6 +13,7 @@ import {DICTIONARY_CONFIG_TOKEN, DictionaryConfig, DictNode} from "../model/dict
 export class FlatNode {
   expandable: boolean;
   name: string;
+  externalName: string;
   level: number;
   id: number;
   pid: number;
@@ -304,9 +305,10 @@ export class HierarchicalDictionaryComponent implements OnInit, OnDestroy {
     let pos = 0;
     const parElem = document.getElementById(node.id.toString());
     if (parElem) {
+      const nodeName = node.externalName ? node.externalName : node.name;
       const elemArray = parElem.getElementsByTagName('span');
-      while (pos < node.name.length) {
-        const foundPos = node.name.toLowerCase().indexOf(substr.toLowerCase(), pos);
+      while (pos < nodeName.length) {
+        const foundPos = nodeName.toLowerCase().indexOf(substr.toLowerCase(), pos);
         if (foundPos === -1) {
           break;
         }

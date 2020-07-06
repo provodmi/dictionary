@@ -30,20 +30,22 @@
       </mat-tree-node>
 
       <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-        <button mat-icon-button matTreeNodeToggle
-                [attr.aria-label]="'toggle ' + node.filename">
+        <button mat-icon-button matTreeNodeToggle>
           <mat-icon class="mat-icon-rtl-mirror">
             {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
           </mat-icon>
         </button>
-
-<!--        [indeterminate]="this.dictMeta.multiSelection ? descendantsPartiallySelected(node) : false"-->
-<!--        (change)="this.dictMeta.multiSelection ? todoItemSelectionToggle(node) : todoLeafItemSelectionToggle(node)"-->
-<!--        [checked]="this.dictMeta.multiSelection ? descendantsAllSelected(node) : checklistSelection.isSelected(node)"-->
-        <mat-checkbox [checked]="checklistSelection.isSelected(node)"
-                      (change)="todoLeafItemSelectionToggle(node)">
-          <div [id]=[node.id] [style.white-space]="'pre-line'">
-            <span *ngFor="let l of node.name.split('')">{{l}}</span>
+        <span *ngIf="!dictMeta.parentNodeIsSelectable"
+              class="parentNode" matTreeNodeToggle [id]="node.id">
+              <strong>{{node.externalName ? node.externalName : node.name}}</strong>
+        </span>
+        <mat-checkbox *ngIf="dictMeta.parentNodeIsSelectable"
+                      [checked]="checklistSelection.isSelected(node)"
+                      (change)="todoLeafItemSelectionToggle(node)"
+                      [matTooltipShowDelay]="500"
+                      matTooltip={{node.name}}>
+          <div [id]="node.id" [style.white-space]="'pre-line'">
+            <span *ngFor="let l of (node.externalName ? node.externalName : node.name).split('')">{{l}}</span>
           </div>
         </mat-checkbox>
       </mat-tree-node>

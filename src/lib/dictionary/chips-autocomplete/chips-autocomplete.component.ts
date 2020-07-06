@@ -12,8 +12,8 @@ import {
 } from '@angular/core';
 import {FormControl, NG_VALUE_ACCESSOR, Validators} from '@angular/forms';
 import {MatAutocomplete, MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
-import {BehaviorSubject, combineLatest, Observable, of, ReplaySubject} from 'rxjs';
-import {debounceTime, distinctUntilChanged, filter, startWith, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {BehaviorSubject, combineLatest, iif, Observable, of, ReplaySubject} from 'rxjs';
+import {debounceTime, distinctUntilChanged, filter, map, startWith, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {DictNode} from '../model/dictionary.model';
 import {DictionaryDialogComponent} from '../dictionary-dialog/dictionary-dialog.component';
 import {MatDialog} from '@angular/material/dialog';
@@ -37,6 +37,7 @@ export class ChipsAutocompleteComponent implements OnInit, OnChanges, OnDestroy 
   @Input() data: { oid: string };
   @Input() dictMeta;
   @Input() params: BehaviorSubject<any>;
+  @Input() outputResultsWithHierarchy?: boolean;
 
   holder = this.placeholder;
 
@@ -82,7 +83,8 @@ export class ChipsAutocompleteComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   constructor(public dictService: DictionaryService,
-              public dialog: MatDialog) { }
+              public dialog: MatDialog) {
+  }
 
   ngOnInit() {
     this.dicRecords = combineLatest([
@@ -95,25 +97,27 @@ export class ChipsAutocompleteComponent implements OnInit, OnChanges, OnDestroy 
         filter(value => typeof value === 'string'),
         startWith(''),
         this.dictService.fixKeyboardLayout(),
-        distinctUntilChanged(),
         debounceTime(1000),
+        distinctUntilChanged()
       )
     ]).pipe(
       switchMap(([params, searchStr]) => {
         this.dictInputControl.setErrors(null);
         if (searchStr && searchStr.length > 2) {
-          return this.dictService.getByNameOrNameAndParams(this.data.oid, params, searchStr)
-            .pipe(
-              tap(res => {
-                if (!res.length) {
-                  this.searchingRequest = null;
-                  this.dictInputControl.setErrors({'notFound': true});
-                  this.dictInputControl.markAsTouched();
-                } else {
-                  this.searchingRequest = searchStr;
-                }
-              })
-            );
+          return iif(() => this.outputResultsWithHierarchy,
+            this.dictService.getByNameHierarchicalDic(this.data.oid, searchStr),
+            this.dictService.getByNameOrNameAndParams(this.data.oid, params, searchStr)
+          ).pipe(
+            tap(res => {
+              if (!res.length) {
+                this.searchingRequest = null;
+                this.dictInputControl.setErrors({'notFound': true});
+                this.dictInputControl.markAsTouched();
+              } else {
+                this.searchingRequest = searchStr;
+              }
+            })
+          );
         } else if (this.dictMeta.dictionarySize <= 500 || !this.dictMeta.parameters ||
           this.dictMeta.parameters.length) {
           this.searchingRequest = null;
@@ -123,11 +127,39 @@ export class ChipsAutocompleteComponent implements OnInit, OnChanges, OnDestroy 
           return of([]);
         }
       }),
+      map(dic => {
+        if (this.outputResultsWithHierarchy) {
+          const result = [];
+          dic.reverse().forEach(node => {
+            if (node.parentId) {
+              const pind = dic.findIndex(o => o.id === node.parentId);
+              if (pind === -1) {
+                result.unshift(node);
+              } else {
+                dic[pind].children ? dic[pind].children.unshift(node) : dic[pind].children = [node];
+                dic[pind].expandable = true;
+              }
+            } else {
+              result.unshift(node);
+            }
+          });
+          return result;
+        } else {
+          return dic;
+        }
+
+      }),
+      tap((res) => {
+        if (this.matAutocomplete && res && res.length) {
+          this.matAutocomplete._setScrollTop(0);
+        }
+      }),
       takeUntil(this.destroy)
     );
   }
 
-  ngOnChanges(changes: SimpleChanges): void { }
+  ngOnChanges(changes: SimpleChanges): void {
+  }
 
   ngOnDestroy(): void {
     this.destroy.next(null);
@@ -141,7 +173,7 @@ export class ChipsAutocompleteComponent implements OnInit, OnChanges, OnDestroy 
       this.records.splice(index, 1);
       this.onChange(this.records.length ? this.records : null);
     }
-    if (!this.records.length)  {
+    if (!this.records.length) {
       this.dictInputControl.reset();
       this.dictInputControl.markAsTouched();
       this.dictInputControl.markAsDirty();

@@ -29,6 +29,7 @@ import {DictionaryDialogComponent} from '../dictionary-dialog/dictionary-dialog.
 import {MatDialog} from "@angular/material/dialog";
 import {DictionaryService} from "../service/dictionary.service";
 import {isArrayFromObjectsWithId, isObjectWithId} from "../is-object-with-id";
+import {MatAutocomplete} from "@angular/material/autocomplete";
 
 
 @Component({
@@ -50,8 +51,11 @@ export class DictionaryInputComponent implements OnInit, OnDestroy, OnChanges {
   @Input() label;
   @Input() data: { oid: string, parentId?: number, form: FormGroup };
   @Input() outputDataType?: 'object' | 'number';
+  @Input() required?: boolean;
+  @Input() outputResultsWithHierarchy?: boolean;
 
   @ViewChild('inputElement', {static: false}) input: ElementRef;
+  @ViewChild('auto', {static: false}) matAutocomplete: MatAutocomplete;
 
   dictInputControl = new FormControl('');
 
@@ -107,7 +111,10 @@ export class DictionaryInputComponent implements OnInit, OnDestroy, OnChanges {
       if (dicMeta.dictionarySize > 500 && (!dicMeta.parameters || dicMeta.parameters && !dicMeta.parameters.length)) {
         this.placeholder = 'введите минимум 3 символа';
       }
-      this.dictInputControl.setValidators(dicMeta.multiSelection ? [isArrayFromObjectsWithId] : [isObjectWithId]);
+      this.dictInputControl.setValidators(dicMeta.multiSelection
+        ? (this.required ? [Validators.required, isArrayFromObjectsWithId] : [isArrayFromObjectsWithId])
+        : (this.required ? [Validators.required, isObjectWithId] : [isObjectWithId])
+      );
       this.dictInputControl.updateValueAndValidity();
       this.paramsForRequest.next(this.getObjectOfParams());
       this.isLoading = false;
@@ -159,13 +166,11 @@ export class DictionaryInputComponent implements OnInit, OnDestroy, OnChanges {
         )),
         distinctUntilChanged(),
         switchMap(({params, searchStr}) => {
-          this.dictInputControl.setErrors(null);
           if (searchStr && searchStr.length > 2) {
             return this.dictService.getByNameOrNameAndParams(this.data.oid, params, searchStr)
               .pipe(
                 tap(res => {
                   if (!res.length) {
-                    this.dictInputControl.setErrors({'notFound': true});
                     this.dictInputControl.markAsTouched();
                   }
                 })
@@ -175,6 +180,11 @@ export class DictionaryInputComponent implements OnInit, OnDestroy, OnChanges {
             return this.dictService.getHierarchicalDictionary(this.data.oid, params);
           } else {
             return of([]);
+          }
+        }),
+        tap((res) => {
+          if (this.matAutocomplete && res && res.length) {
+            this.matAutocomplete._setScrollTop(0);
           }
         }),
         takeUntil(this.destroy)
